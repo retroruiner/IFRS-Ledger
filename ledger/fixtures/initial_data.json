@@ -1,0 +1,15 @@
+[
+  {"model": "ledger.balancearticle", "pk": 1, "fields": {"name": "Активы"}},
+  {"model": "ledger.balancearticle", "pk": 2, "fields": {"name": "Пассивы"}},
+
+  {"model": "ledger.balancegroup", "pk": 1, "fields": {"article": 1, "name": "Денежные средства"}},
+  {"model": "ledger.balancegroup", "pk": 2, "fields": {"article": 1, "name": "Счета клиентов"}},
+  {"model": "ledger.balancegroup", "pk": 3, "fields": {"article": 2, "name": "Капитал"}},
+
+  {"model": "ledger.account", "pk": 1,
+   "fields": {"group": 1, "name": "Касса", "type": "ASSET", "balance": "0.00"}},
+  {"model": "ledger.account", "pk": 2,
+   "fields": {"group": 2, "name": "Счета клиентов", "type": "ASSET", "balance": "0.00"}},
+  {"model": "ledger.account", "pk": 3,
+   "fields": {"group": 3, "name": "Уставной капитал", "type": "LIABILITY", "balance": "0.00"}}
+]
