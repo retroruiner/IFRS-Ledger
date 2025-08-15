@@ -1,0 +1,160 @@
+from decimal import Decimal
+from django.db import migrations, models
+import django.db.models.deletion
+import django.utils.timezone
+import ledger.models
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = []
+
+    operations = [
+        migrations.CreateModel(
+            name="Account",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "number",
+                    models.CharField(
+                        default=ledger.models.generate_account_number,
+                        max_length=10,
+                        unique=True,
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[
+                            ("ASSET", "Актив"),
+                            ("LIABILITY", "Пассив"),
+                            ("BOTH", "Активно-пассивный"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "balance",
+                    models.DecimalField(
+                        decimal_places=2, default=Decimal("0.00"), max_digits=18
+                    ),
+                ),
+            ],
+            options={
+                "verbose_name": "Счёт",
+                "verbose_name_plural": "Счета",
+                "ordering": ("number",),
+            },
+        ),
+        migrations.CreateModel(
+            name="BalanceArticle",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200, unique=True)),
+            ],
+            options={
+                "verbose_name": "Статья баланса",
+                "verbose_name_plural": "Статьи баланса",
+            },
+        ),
+        migrations.CreateModel(
+            name="Transaction",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        db_index=True, default=django.utils.timezone.now
+                    ),
+                ),
+                ("description", models.CharField(blank=True, max_length=500)),
+                ("amount", models.DecimalField(decimal_places=2, max_digits=18)),
+                ("posted", models.BooleanField(default=False)),
+                (
+                    "credit_account",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="credit_transactions",
+                        to="ledger.account",
+                    ),
+                ),
+                (
+                    "debit_account",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="debit_transactions",
+                        to="ledger.account",
+                    ),
+                ),
+            ],
+            options={
+                "verbose_name": "Транзакция",
+                "verbose_name_plural": "Транзакции",
+                "ordering": ("-created_at", "id"),
+            },
+        ),
+        migrations.CreateModel(
+            name="BalanceGroup",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                (
+                    "article",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="groups",
+                        to="ledger.balancearticle",
+                    ),
+                ),
+            ],
+            options={
+                "verbose_name": "Балансовая группа",
+                "verbose_name_plural": "Балансовые группы",
+                "unique_together": {("article", "name")},
+            },
+        ),
+        migrations.AddField(
+            model_name="account",
+            name="group",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="accounts",
+                to="ledger.balancegroup",
+            ),
+        ),
+    ]
