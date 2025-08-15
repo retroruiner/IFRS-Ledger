@@ -1,0 +1,35 @@
+{% extends "ledger/base.html" %}
+{% load form_extras %}
+{% block title %}Новая транзакция{% endblock %}
+{% block content %}
+<h1 class="mb-3">Создать транзакцию</h1>
+<form method="post" class="card card-body">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">Дебет</label>
+      {{ form.debit_account|add_class:"form-select" }}
+      {{ form.debit_account.errors }}
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Кредит</label>
+      {{ form.credit_account|add_class:"form-select" }}
+      {{ form.credit_account.errors }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Сумма</label>
+      {{ form.amount|add_class:"form-control" }}
+      {{ form.amount.errors }}
+    </div>
+    <div class="col-12">
+      <label class="form-label">Описание</label>
+      {{ form.description|add_class:"form-control" }}
+      {{ form.description.errors }}
+    </div>
+  </div>
+  <div class="mt-3">
+    <button class="btn btn-primary" type="submit">Провести</button>
+  </div>
+</form>
+{% endblock %}
